@@ -1,6 +1,16 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# Set a project name, for local address and VM configuration
+# Set a local private network IP address.
+# See http://en.wikipedia.org/wiki/Private_network for explanation
+# You can use the following IP ranges:
+#   10.0.0.1    - 10.255.255.254
+#   172.16.0.1  - 172.31.255.254
+#   192.168.0.1 - 192.168.255.254
+project_name = "vaprobash"
+project_ip   = "192.168.22.10"
+
 # Config Github Settings
 github_username = "fideloper"
 github_repo     = "Vaprobash"
@@ -9,22 +19,14 @@ github_url      = "https://raw.githubusercontent.com/#{github_username}/#{github
 
 # Because this:https://developer.github.com/changes/2014-12-08-removing-authorizations-token/
 # https://github.com/settings/tokens
-github_pat          = ""
+github_pat = ""
 
 # Server Configuration
-
-hostname        = "vaprobash.dev"
-
-# Set a local private network IP address.
-# See http://en.wikipedia.org/wiki/Private_network for explanation
-# You can use the following IP ranges:
-#   10.0.0.1    - 10.255.255.254
-#   172.16.0.1  - 172.31.255.254
-#   192.168.0.1 - 192.168.255.254
-server_ip             = "192.168.22.10"
-server_cpus           = "1"   # Cores
-server_memory         = "384" # MB
-server_swap           = "768" # Options: false | int (MB) - Guideline: Between one or two times the server_memory
+hostname      = project_name + ".dev"
+server_ip     = project_ip
+server_cpus   = "1"   # Cores
+server_memory = "384" # MB
+server_swap   = "768" # Options: false | int (MB) - Guideline: Between one or two times the server_memory
 
 # UTC        for Universal Coordinated Time
 # EST        for Eastern Standard Time
@@ -90,7 +92,7 @@ Vagrant.configure("2") do |config|
   # Set server to Ubuntu 14.04
   config.vm.box = "ubuntu/trusty64"
 
-  config.vm.define "Vaprobash" do |vapro|
+  config.vm.define project_name do |vapro|
   end
 
   if Vagrant.has_plugin?("vagrant-hostmanager")
@@ -111,7 +113,7 @@ Vagrant.configure("2") do |config|
 
   # Enable agent forwarding over SSH connections
   config.ssh.forward_agent = true
-  
+
   # Use NFS for the shared folder
   config.vm.synced_folder ".", "/vagrant",
             id: "core",
@@ -121,7 +123,7 @@ Vagrant.configure("2") do |config|
   # If using VirtualBox
   config.vm.provider :virtualbox do |vb|
 
-    vb.name = "Vaprobash"
+    vb.name = project_name
 
     # Set server cpus
     vb.customize ["modifyvm", :id, "--cpus", server_cpus]
@@ -203,7 +205,7 @@ Vagrant.configure("2") do |config|
   ##########
 
   # Provision Apache Base
-  # config.vm.provision "shell", path: "#{github_url}/scripts/apache.sh", args: [server_ip, public_folder, hostname, github_url]
+  config.vm.provision "shell", path: "#{github_url}/scripts/apache.sh", args: [server_ip, public_folder, hostname, github_url]
 
   # Provision Nginx Base
   # config.vm.provision "shell", path: "#{github_url}/scripts/nginx.sh", args: [server_ip, public_folder, hostname, github_url]
